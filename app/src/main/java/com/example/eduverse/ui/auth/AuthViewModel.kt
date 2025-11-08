@@ -31,16 +31,9 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun checkAuthStatus() {
-        viewModelScope.launch {
-            val firebaseUser = authRepository.currentUser
-            if (firebaseUser != null) {
-                try {
-                    val user = authRepository.getUserFromFirestore(firebaseUser.uid)
-                    _authState.value = AuthState(user = user)
-                } catch (e: Exception) {
-                    _authState.value = AuthState(error = e.message)
-                }
-            }
+        val user = authRepository.getCurrentUser()
+        if (user != null) {
+            _authState.value = AuthState(user = user)
         }
     }
 

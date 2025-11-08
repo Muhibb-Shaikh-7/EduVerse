@@ -1,27 +1,21 @@
 {
-  "_comment": "PLACEHOLDER FILE - Replace this with your actual google-services.json from Firebase Console",
   "project_info": {
-    "project_number": "YOUR_PROJECT_NUMBER",
-    "project_id": "your-project-id",
-    "storage_bucket": "your-project-id.appspot.com"
+    "project_number": "971918386111",
+    "project_id": "eduverse-7a899",
+    "storage_bucket": "eduverse-7a899.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:YOUR_PROJECT_NUMBER:android:YOUR_APP_ID",
+        "mobilesdk_app_id": "1:971918386111:android:880d5a7d7e1d4fe18d370a",
         "android_client_info": {
           "package_name": "com.example.eduverse"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "YOUR_API_KEY"
+          "current_key": "AIzaSyDipDMpcVt1esTUrMGfNbGz_2KgXbtVJ9M"
         }
       ],
       "services": {
