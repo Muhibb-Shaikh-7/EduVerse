@@ -2,17 +2,17 @@ package com.example.eduverse
 
 import android.app.Application
 import android.util.Log
+import dagger.hilt.android.HiltAndroidApp
 
 /**
- * EduVerse Application Class
+ * EduVerse Application Class with Hilt
  *
- * This will be used to initialize:
- * - Firebase (when you add google-services.json)
- * - Hilt/Dagger (for dependency injection)
+ * This initializes:
+ * - Firebase
+ * - Hilt/Dagger for dependency injection
  * - Any other app-level initialization
- *
- * Currently: Empty and ready for Firebase setup
  */
+@HiltAndroidApp
 class EduVerseApplication : Application() {
 
     override fun onCreate() {
@@ -20,13 +20,8 @@ class EduVerseApplication : Application() {
 
         Log.i(TAG, "EduVerse Application Started")
 
-        // TODO: Initialize Firebase when ready
-        // FirebaseApp.initializeApp(this)
-
-        // TODO: Initialize other services
-        // - Authentication
-        // - Analytics
-        // - Crash reporting
+        // Firebase is automatically initialized via google-services plugin
+        // Hilt is initialized via @HiltAndroidApp annotation
     }
 
     companion object {

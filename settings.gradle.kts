@@ -20,6 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "EduVerse"
+rootProject.name = "E_EducationPlatform"
 include(":app")
- 

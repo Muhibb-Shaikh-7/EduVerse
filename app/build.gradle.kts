@@ -2,9 +2,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.gms.google-services") version "4.4.0" apply false
-    id("com.google.dagger.hilt.android") version "2.48" apply false
-    id("com.google.devtools.ksp") version "1.9.20-1.0.14" apply false
+    // Apply this plugin after adding your google-services.json from Firebase Console
+    id("com.google.gms.google-services")
+    id("com.google.dagger.hilt.android") version "2.48"
+    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
 }
 
 android {
@@ -74,8 +75,8 @@ dependencies {
 
     // Hilt Dependency Injection
     implementation("com.google.dagger:hilt-android:2.48")
+    ksp("com.google.dagger:hilt-android-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
-    // ksp("com.google.dagger:hilt-android-compiler:2.48")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
