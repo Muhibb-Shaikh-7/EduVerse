@@ -1,0 +1,177 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+    }
+    
+    function isTeacher() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'TEACHER';
+    }
+    
+    function isStudent() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'STUDENT';
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidString(value, maxLength) {
+      return value is string && value.size() > 0 && value.size() <= maxLength;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                       request.auth.uid == userId &&
+                       request.resource.data.uid == userId &&
+                       isValidString(request.resource.data.email, 100) &&
+                       isValidString(request.resource.data.displayName, 100);
+      allow update: if (isOwner(userId) || isAdmin()) &&
+                       request.resource.data.uid == userId;
+      allow delete: if isAdmin();
+    }
+    
+    // Courses collection
+    match /courses/{courseId} {
+      allow read: if resource.data.published == true || 
+                     isAdmin() || 
+                     (isAuthenticated() && resource.data.createdBy == request.auth.uid);
+      allow create: if (isAdmin() || isTeacher()) && 
+                       request.resource.data.createdBy == request.auth.uid &&
+                       isValidString(request.resource.data.title, 200) &&
+                       isValidString(request.resource.data.description, 5000);
+      allow update: if isAdmin() || 
+                       (isAuthenticated() && resource.data.createdBy == request.auth.uid);
+      allow delete: if isAdmin() || 
+                       (isAuthenticated() && resource.data.createdBy == request.auth.uid);
+      
+      // Lessons subcollection
+      match /lessons/{lessonId} {
+        allow read: if get(/databases/$(database)/documents/courses/$(courseId)).data.published == true || 
+                       isAdmin() || 
+                       (isAuthenticated() && get(/databases/$(database)/documents/courses/$(courseId)).data.createdBy == request.auth.uid);
+        allow create: if (isAdmin() || 
+                         (isAuthenticated() && get(/databases/$(database)/documents/courses/$(courseId)).data.createdBy == request.auth.uid)) &&
+                         isValidString(request.resource.data.title, 200);
+        allow update: if isAdmin() || 
+                         (isAuthenticated() && get(/databases/$(database)/documents/courses/$(courseId)).data.createdBy == request.auth.uid);
+        allow delete: if isAdmin() || 
+                         (isAuthenticated() && get(/databases/$(database)/documents/courses/$(courseId)).data.createdBy == request.auth.uid);
+      }
+    }
+    
+    // Enrollments collection
+    match /enrollments/{enrollmentId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.enrollmentId == enrollmentId;
+      allow update: if isAuthenticated() && 
+                       (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+    
+    // Announcements collection
+    match /announcements/{announcementId} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow create: if isAdmin() &&
+                       isValidString(request.resource.data.title, 200) &&
+                       isValidString(request.resource.data.body, 10000);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Reports collection
+    match /reports/{reportId} {
+      allow read: if isAdmin() || 
+                     (isAuthenticated() && resource.data.reportedBy == request.auth.uid);
+      allow create: if isAuthenticated() &&
+                       request.resource.data.reportedBy == request.auth.uid &&
+                       isValidString(request.resource.data.reason, 500) &&
+                       request.resource.data.status == 'OPEN';
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Categories collection
+    match /categories/{categoryId} {
+      allow read: if true;  // Public read
+      allow create: if isAdmin() && isValidString(request.resource.data.name, 100);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Ratings collection
+    match /ratings/{ratingId} {
+      allow read: if true;  // Public read
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.value >= 1 &&
+                       request.resource.data.value <= 5;
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid &&
+                       request.resource.data.value >= 1 &&
+                       request.resource.data.value <= 5;
+      allow delete: if isAdmin() || 
+                       (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+    
+    // Student Progress collection
+    match /student_progress/{userId} {
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == userId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if isAdmin();
+    }
+    
+    // Quiz Results collection
+    match /quiz_results/{resultId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if false;  // Quiz results are immutable
+      allow delete: if isAdmin();
+    }
+    
+    // Flashcard Sets collection
+    match /flashcards/{setId} {
+      allow read: if resource.data.isPublic == true || 
+                     isAdmin() || 
+                     (isAuthenticated() && resource.data.teacherId == request.auth.uid);
+      allow create: if (isAdmin() || isTeacher()) && 
+                       request.resource.data.teacherId == request.auth.uid;
+      allow update: if isAdmin() || 
+                       (isAuthenticated() && resource.data.teacherId == request.auth.uid);
+      allow delete: if isAdmin() || 
+                       (isAuthenticated() && resource.data.teacherId == request.auth.uid);
+    }
+    
+    // Materials collection
+    match /materials/{materialId} {
+      allow read: if resource.data.isPublic == true || 
+                     isAdmin() || 
+                     (isAuthenticated() && resource.data.uploadedBy == request.auth.uid);
+      allow create: if (isAdmin() || isTeacher()) && 
+                       request.resource.data.uploadedBy == request.auth.uid;
+      allow update: if isAdmin() || 
+                       (isAuthenticated() && resource.data.uploadedBy == request.auth.uid);
+      allow delete: if isAdmin() || 
+                       (isAuthenticated() && resource.data.uploadedBy == request.auth.uid);
+    }
+  }
+}

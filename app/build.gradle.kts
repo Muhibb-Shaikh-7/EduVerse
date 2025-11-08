@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")  // Required for Firebase
+    id("com.google.firebase.crashlytics")  // Crashlytics plugin
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
 }
@@ -39,6 +40,15 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/LICENSE-notice.md"
+            excludes += "/META-INF/NOTICE.md"
+        }
     }
 }
 
@@ -83,8 +93,12 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("com.google.firebase:firebase-config-ktx")
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation("com.google.firebase:firebase-functions-ktx")
 
-    // Supabase for Storage (replaces Firebase Storage)
+    // Supabase for Additional Storage (optional)
     implementation(platform("io.github.jan-tennert.supabase:bom:3.0.2"))
     implementation("io.github.jan-tennert.supabase:storage-kt")
     implementation("io.github.jan-tennert.supabase:postgrest-kt")
@@ -107,12 +121,24 @@ dependencies {
     // Lottie Animations
     implementation("com.airbnb.android:lottie-compose:6.1.0")
 
+    // Paging for large lists
+    implementation("androidx.paging:paging-compose:3.2.1")
+    implementation("androidx.paging:paging-runtime-ktx:3.2.1")
+
+    // Work Manager for background tasks
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+
     // Testing
     testImplementation(libs.junit)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("app.cash.turbine:turbine:1.0.0")
+    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("com.google.truth:truth:1.1.5")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation("io.mockk:mockk-android:1.13.8")
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }

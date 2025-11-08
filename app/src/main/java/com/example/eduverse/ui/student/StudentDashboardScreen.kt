@@ -23,6 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eduverse.ui.auth.AuthViewModel
 import com.example.eduverse.ui.components.*
+import com.example.eduverse.ui.teacher.UploadMaterialScreen
+import com.example.eduverse.ui.teacher.OCRProcessingScreen
+import com.example.eduverse.ui.teacher.FlashcardGeneratorScreen
+import com.example.eduverse.ui.teacher.MCQQuizCreatorScreen
 import com.example.eduverse.data.model.StudentProgress
 import com.example.eduverse.data.model.Badge
 
@@ -67,6 +71,33 @@ fun StudentDashboardScreen(
             )
             StudentScreen.Progress -> ProgressScreen(
                 viewModel = studentViewModel,
+                onBack = {
+                    selectedScreen = null
+                    currentNavRoute = "dashboard"
+                }
+            )
+            StudentScreen.UploadMaterial -> UploadMaterialScreen(
+                onBack = {
+                    selectedScreen = null
+                    currentNavRoute = "dashboard"
+                }
+            )
+
+            StudentScreen.OCRProcessing -> OCRProcessingScreen(
+                onBack = {
+                    selectedScreen = null
+                    currentNavRoute = "dashboard"
+                }
+            )
+
+            StudentScreen.FlashcardGenerator -> FlashcardGeneratorScreen(
+                onBack = {
+                    selectedScreen = null
+                    currentNavRoute = "dashboard"
+                }
+            )
+
+            StudentScreen.QuizCreator -> MCQQuizCreatorScreen(
                 onBack = {
                     selectedScreen = null
                     currentNavRoute = "dashboard"
@@ -363,7 +394,11 @@ fun BadgeUnlockDialog(badges: List<Badge>, onDismiss: () -> Unit) {
 enum class StudentScreen {
     Flashcards,
     Quizzes,
-    Progress
+    Progress,
+    UploadMaterial,
+    OCRProcessing,
+    FlashcardGenerator,
+    QuizCreator
 }
 
 data class StudentFeature(
@@ -395,6 +430,34 @@ val studentFeatures = listOf(
         "Track achievements",
         Icons.Default.TrendingUp,
         Color(0xFFFF9800)
+    ),
+    StudentFeature(
+        StudentScreen.UploadMaterial,
+        "Upload Material",
+        "Share study resources",
+        Icons.Default.CloudUpload,
+        Color(0xFF9C27B0)
+    ),
+    StudentFeature(
+        StudentScreen.OCRProcessing,
+        "OCR Scanner",
+        "Scan & extract text",
+        Icons.Default.CameraAlt,
+        Color(0xFFE91E63)
+    ),
+    StudentFeature(
+        StudentScreen.FlashcardGenerator,
+        "Create Flashcards",
+        "Build your own cards",
+        Icons.Default.AutoAwesome,
+        Color(0xFF00BCD4)
+    ),
+    StudentFeature(
+        StudentScreen.QuizCreator,
+        "Create Quiz",
+        "Make custom quizzes",
+        Icons.Default.Create,
+        Color(0xFFFF5722)
     )
 )
 

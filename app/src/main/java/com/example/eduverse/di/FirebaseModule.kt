@@ -2,7 +2,12 @@ package com.example.eduverse.di
 
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -34,7 +39,7 @@ object FirebaseModule {
     }
 
     /**
-     * Provides Firebase Firestore instance
+     * Provides Firebase Firestore instance with offline persistence
      */
     @Provides
     @Singleton
@@ -44,10 +49,65 @@ object FirebaseModule {
         // Enable offline persistence
         val settings = com.google.firebase.firestore.FirebaseFirestoreSettings.Builder()
             .setPersistenceEnabled(true)
+            .setCacheSizeBytes(com.google.firebase.firestore.FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
             .build()
         firestore.firestoreSettings = settings
 
         return firestore
+    }
+
+    /**
+     * Provides Firebase Storage instance
+     */
+    @Provides
+    @Singleton
+    fun provideFirebaseStorage(): FirebaseStorage {
+        return FirebaseStorage.getInstance()
+    }
+
+    /**
+     * Provides Firebase Remote Config instance
+     */
+    @Provides
+    @Singleton
+    fun provideFirebaseRemoteConfig(): FirebaseRemoteConfig {
+        val remoteConfig = FirebaseRemoteConfig.getInstance()
+        val configSettings = FirebaseRemoteConfigSettings.Builder()
+            .setMinimumFetchIntervalInSeconds(3600) // 1 hour for production, use lower for development
+            .build()
+        remoteConfig.setConfigSettingsAsync(configSettings)
+
+        // Set default values
+        remoteConfig.setDefaultsAsync(
+            mapOf(
+                "admin_mode_enabled" to true,
+                "new_firestore_backend" to true,
+                "enable_offline_mode" to true,
+                "max_upload_size_mb" to 100,
+                "feature_announcements" to true,
+                "feature_reports" to true
+            )
+        )
+
+        return remoteConfig
+    }
+
+    /**
+     * Provides Firebase Analytics instance
+     */
+    @Provides
+    @Singleton
+    fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics {
+        return FirebaseAnalytics.getInstance(context)
+    }
+
+    /**
+     * Provides Firebase Crashlytics instance
+     */
+    @Provides
+    @Singleton
+    fun provideFirebaseCrashlytics(): FirebaseCrashlytics {
+        return FirebaseCrashlytics.getInstance()
     }
 
     /**
