@@ -32,14 +32,22 @@ service cloud.firestore {
     
     // Users collection
     match /users/{userId} {
+      // Allow read for all authenticated users
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && 
+      
+      // Allow create during registration (user creates their own document)
+      allow create: if request.auth != null &&
                        request.auth.uid == userId &&
                        request.resource.data.uid == userId &&
-                       isValidString(request.resource.data.email, 100) &&
-                       isValidString(request.resource.data.displayName, 100);
+                       request.resource.data.email is string &&
+                       request.resource.data.displayName is string &&
+                       request.resource.data.role in ['ADMIN', 'TEACHER', 'STUDENT'];
+      
+      // Allow update only by owner or admin
       allow update: if (isOwner(userId) || isAdmin()) &&
                        request.resource.data.uid == userId;
+      
+      // Allow delete only by admin
       allow delete: if isAdmin();
     }
     
