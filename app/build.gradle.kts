@@ -43,9 +43,9 @@ android {
 }
 
 dependencies {
-    // RunAnywhere AI SDK
-    implementation("com.github.RunanywhereAI.runanywhere-sdks:runanywhere-kotlin:android-v0.1.3-alpha")
-    implementation("com.github.RunanywhereAI.runanywhere-sdks:runanywhere-llm-llamacpp:android-v0.1.3-alpha")
+    // RunAnywhere AI SDK - TEMPORARILY DISABLED to fix Gradle sync
+    // TODO: Re-enable when ready for AI quiz/flashcard generation features
+    // implementation("com.github.RunanywhereAI:runanywhere-sdks:android-v0.1.3-alpha")
 
     // Kotlin Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
